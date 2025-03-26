@@ -11,10 +11,27 @@
         <div id="currentTempDisp">°C</div>
     </div>
     <div id="loggingFuncs">
-        <h2>Logging Functions</h2>
-        
+        <h2>Logging Parameters</h2>
+        <p>
+            enter logging interval and logging duration. 
+            <br>
+            <i>
+                There is a limit of 10^3 total observations
+            </i>
+        </p>
+        <br>
+        <form id="loggingParams">
+            <label for="interval">Reading interval in seconds (min 0.25s)</label>
+            <input type="text" id="interval" name="interval"><br>
+            <label for="loggingDuration">Durration of logging in seconds</label>
+            <input type="text" id="loggingDuration" name="loggingDuration"><br>
+            <input type="submit" value="Submit">
+        </form>
+        <br>
+        <button id="loggingStart">Start Logging</button>
+        <br>
         <a href="/download">Download Log</a>
     </div>
-
 </body>
+<script src="/main.js" type="text/javascript"></script>
 </html>

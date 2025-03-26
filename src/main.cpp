@@ -6,6 +6,9 @@
 
 const char* ssid = "ESP32-thermocouple";
 const char* password = "1234567890";
+unsigned long loggingInterval = 5000;
+unsigned long loggingDuration = 10000 * 5000;
+unsigned long logStartTime = 0;
 
 const char* csvName = "/temps.csv";
 
@@ -51,14 +54,6 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
 
-    // connect to existing wifi network
-    // WiFi.begin(ssid, password);
-    // Serial.print("connecting to wifi");
-    // while (Wifi.status() != WL_CONNECTED) {
-    //     delay(500);
-    //     Serial.print(".");
-    // }
-
     // create access point
     WiFi.softAP(ssid, password);
     IPAddress IP = WiFi.softAPIP();
@@ -73,6 +68,44 @@ void setup() {
     Serial.println("SPIFFS mount successful");
 
     writeCsvHeader();
+
+    server.on("/", HTTP_GET, []() {
+      File file = SPIFFS.open("/index.html", "r");
+
+      if (!file) {
+        server.send(500, "text/plain", "file not found");
+        return;
+      }
+      server.streamFile(file, "text/html");
+      file.close();
+    });
+
+    server.on("/main.js", HTTP_GET, [](){
+      File file = SPIFFS.open("/main.js", "r");
+
+      if (!file) {
+        server.send(500, "text/plain", "file not found");
+        return;
+      }
+
+      server.streamFile(file, "text/javascript");
+      file.close();
+    });
+
+
+
+    server.on("/update", HTTP_POST, []() {
+      if (server.hasArg("interval") && server.hasArg("duration")) {
+        loggingInterval = server.arg("interval").toInt();
+        loggingDuration = server.arg("duration").toInt();
+        logStartTime = millis();
+
+        server.send(200, "text/plain", "params updated");
+      } else {
+        server.send(400, "text/plain", "missing params");
+      }
+    });
+
 
     server.on("/download", HTTP_GET, []() {
         File file= SPIFFS.open(csvName, "r");
@@ -93,8 +126,12 @@ void loop() {
     server.handleClient();
 
     static unsigned long lastLog = 0;
-    if (millis() - lastLog > 5000) {
+    unsigned long currentTime = millis();
+
+    if (currentTime - logStartTime < loggingDuration) {
+      if (currentTime - lastLog >= loggingInterval) {
         logTemperatureCSV();
         lastLog = millis();
+      }
     }
 }
