@@ -106,7 +106,6 @@ void setup() {
       if (server.hasArg("interval") && server.hasArg("duration")) {
         loggingInterval = server.arg("interval").toInt();
         loggingDuration = server.arg("duration").toInt();
-        logStartTime = millis();
 
         server.send(200, "text/plain", "params updated");
       } else {
@@ -129,13 +128,20 @@ void setup() {
     server.on("/initiate", HTTP_POST, []() {
       if (server.hasArg("startlog") && server.arg("startlog").toInt() == 1) {
         loggerOn = true;
+        logStartTime = millis();
+        
+        server.send(200, "text/plain", "logging initiated");
+      } else {
+        server.send(400, "text/plain", "parameter error - logging not initiated");
       }
     });
 
     server.on("/clear-log", HTTP_POST, [](){
       if (server.hasArg("clearlogs") && server.arg("clearlogs").toInt() == 1) {
         clearLog();
-
+        server.send(200, "text/plain", "log cleared");
+      } else {
+        server.send(400, "text/plain", "parameter error - logs not cleared");
       }
     });
 

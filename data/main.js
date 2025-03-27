@@ -26,8 +26,14 @@ async function setLogParams() {
         event.preventDefault();
 
         // get values from form
-        let logInterval = logIntervalObj.value;
-        let logDuration = logDurationObj.value;
+        let logInterval = logIntervalObj.value * 1000;
+        let logDuration = logDurationObj.value * 1000;
+
+        if (logInterval < 250) {
+            logInterval = 250;
+        }
+
+        logDuration = limitLogLen(logInterval, logDuration);
 
         const data = "inverval=" + encodeURIComponent(logInterval) + "&duration=" + encodeURIComponent(logDuration);
 
