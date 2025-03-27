@@ -7,7 +7,7 @@
 const char* ssid = "ESP32-thermocouple";
 const char* password = "1234567890";
 unsigned long loggingInterval = 5000;
-unsigned long loggingDuration = 10000 * 5000;
+unsigned long loggingDuration = 10000UL * 5000UL;
 unsigned long logStartTime = 0;
 static bool loggerOn = false;
 
@@ -100,7 +100,10 @@ void setup() {
       file.close();
     });
 
-
+    // server.on("/latest", HTTP_GET, []() {
+    //   float currentTemp = thermocouple.readCelsius();
+    //   server.send(500, "text/plain", )
+    // });
 
     server.on("/update-log-specs", HTTP_POST, []() {
       if (server.hasArg("interval") && server.hasArg("duration")) {
@@ -129,7 +132,7 @@ void setup() {
       if (server.hasArg("startlog") && server.arg("startlog").toInt() == 1) {
         loggerOn = true;
         logStartTime = millis();
-        
+
         server.send(200, "text/plain", "logging initiated");
       } else {
         server.send(400, "text/plain", "parameter error - logging not initiated");

@@ -1,10 +1,7 @@
-// DOM selectors 
+// DOM selectors
 const logIntervalObj = document.getElementById('interval');
 const logDurationObj = document.getElementById('loggingDuration');
 const currentTempDispObj = document.getElementById('currentTempDisp');
-const formSubmit = document.getElementById('Submit');
-const startLog = document.getElementById('loggingStart');
-const clearLog = document.getElementById('clearLog');
 
 async function fetchLatestTemp() {
     try {
@@ -21,21 +18,22 @@ async function fetchLatestTemp() {
 }
 
 async function setLogParams() {
+    console.log('setLogParams triggered')
     try {
         // prevent form from clearing - annoying behavior
-        event.preventDefault();
+        // event.preventDefault();
 
         // get values from form
         let logInterval = logIntervalObj.value * 1000;
         let logDuration = logDurationObj.value * 1000;
 
-        if (logInterval < 250) {
-            logInterval = 250;
+        if (logInterval < .250) {
+            logInterval = .250;
         }
 
         logDuration = limitLogLen(logInterval, logDuration);
 
-        const data = "inverval=" + encodeURIComponent(logInterval) + "&duration=" + encodeURIComponent(logDuration);
+        const data = "intverval=" + encodeURIComponent(logInterval) + "&duration=" + encodeURIComponent(logDuration);
 
         // add code to push params to server
         fetch('/update-log-specs', {
@@ -65,6 +63,7 @@ function limitLogLen(interval, durration) {
 }
 
 async function clearLogCSV() {
+    console.log('clearLogCSV event listener triggered')
     try{
         const clearLogs = 'clearlogs=' + encodeURIComponent(1);
 
@@ -84,15 +83,16 @@ async function clearLogCSV() {
 }
 
 async function startLogging() {
+    console.log('start logging event listener triggered')
     try{
-        const startLog = "startlog=" + encodeURIComponent(1);
+        const initiateLog = "startlog=" + encodeURIComponent(1);
 
         fetch('/initiate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: startLog
+            body: initiateLog
         })
         .then(response => response.text())
         .then(text => alert('Server response: '+ text))
@@ -102,11 +102,9 @@ async function startLogging() {
     }
 }
 
-// function clearLogs() {
-
-// }
 
 window.onload = fetchLatestTemp;
-formSubmit.onclick = setLogParams;
-startLog.onclick = startLogging;
-clearLog.onclick = clearLogCSV;
+
+document.getElementById('submit').addEventListener('click', setLogParams);
+document.getElementById('loggingStart').addEventListener('click', startLogging);
+document.getElementById('clearLog').addEventListener('click', clearLogCSV);
