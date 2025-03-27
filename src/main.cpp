@@ -9,6 +9,7 @@ const char* password = "1234567890";
 unsigned long loggingInterval = 5000;
 unsigned long loggingDuration = 10000 * 5000;
 unsigned long logStartTime = 0;
+static bool loggerOn = false;
 
 const char* csvName = "/temps.csv";
 
@@ -48,7 +49,14 @@ void logTemperatureCSV() {
 
     file.close();
 
-}    
+}
+
+void clearLog() {
+  if (SPIFFS.exists(csvName)) {
+    SPIFFS.remove(csvName);
+    writeCsvHeader();
+  }
+}
 
 void setup() {
     Serial.begin(115200);
@@ -94,7 +102,7 @@ void setup() {
 
 
 
-    server.on("/update", HTTP_POST, []() {
+    server.on("/update-log-specs", HTTP_POST, []() {
       if (server.hasArg("interval") && server.hasArg("duration")) {
         loggingInterval = server.arg("interval").toInt();
         loggingDuration = server.arg("duration").toInt();
@@ -118,6 +126,19 @@ void setup() {
         file.close();
     });
 
+    server.on("/initiate", HTTP_POST, []() {
+      if (server.hasArg("startlog") && server.arg("startlog").toInt() == 1) {
+        loggerOn = true;
+      }
+    });
+
+    server.on("/clear-log", HTTP_POST, [](){
+      if (server.hasArg("clearlogs") && server.arg("clearlogs").toInt() == 1) {
+        clearLog();
+
+      }
+    });
+
     server.begin();
 }
 
@@ -128,10 +149,14 @@ void loop() {
     static unsigned long lastLog = 0;
     unsigned long currentTime = millis();
 
-    if (currentTime - logStartTime < loggingDuration) {
+    if (currentTime - logStartTime < loggingDuration && loggerOn) {
       if (currentTime - lastLog >= loggingInterval) {
         logTemperatureCSV();
         lastLog = millis();
       }
+    }
+
+    if (currentTime - logStartTime > loggingDuration) {
+      loggerOn = false;
     }
 }

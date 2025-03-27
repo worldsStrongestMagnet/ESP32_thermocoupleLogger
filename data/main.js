@@ -3,6 +3,8 @@ const logIntervalObj = document.getElementById('interval');
 const logDurationObj = document.getElementById('loggingDuration');
 const currentTempDispObj = document.getElementById('currentTempDisp');
 const formSubmit = document.getElementById('Submit');
+const startLog = document.getElementById('loggingStart');
+const clearLog = document.getElementById('clearLog');
 
 async function fetchLatestTemp() {
     try {
@@ -30,7 +32,7 @@ async function setLogParams() {
         const data = "inverval=" + encodeURIComponent(logInterval) + "&duration=" + encodeURIComponent(logDuration);
 
         // add code to push params to server
-        fetch('/update', {
+        fetch('/update-log-specs', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -56,5 +58,49 @@ function limitLogLen(interval, durration) {
     }
 }
 
+async function clearLogCSV() {
+    try{
+        const clearLogs = 'clearlogs=' + encodeURIComponent(1);
+
+        fetch('/clear-log', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: clearLogs
+        })
+        .then(response => response.text())
+        .then(text => alert('Server response: ' + text))
+        .catch(error => console.error('Error: ', error));
+    } catch (error) {
+        console.error('error clearing logs: ', error)
+    }   
+}
+
+async function startLogging() {
+    try{
+        const startLog = "startlog=" + encodeURIComponent(1);
+
+        fetch('/initiate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: startLog
+        })
+        .then(response => response.text())
+        .then(text => alert('Server response: '+ text))
+        .catch(error => console.error('Error: ', error));
+    } catch (error) {
+        console.error('error initiating log: ', error);
+    }
+}
+
+// function clearLogs() {
+
+// }
+
 window.onload = fetchLatestTemp;
 formSubmit.onclick = setLogParams;
+startLog.onclick = startLogging;
+clearLog.onclick = clearLogCSV;
