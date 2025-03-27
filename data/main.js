@@ -17,11 +17,11 @@ async function fetchLatestTemp() {
     }
 }
 
-async function setLogParams() {
+async function setLogParams(event) {
     console.log('setLogParams triggered')
     try {
         // prevent form from clearing - annoying behavior
-        // event.preventDefault();
+        event.preventDefault();
 
         // get values from form
         let logInterval = logIntervalObj.value * 1000;
@@ -33,7 +33,7 @@ async function setLogParams() {
 
         logDuration = limitLogLen(logInterval, logDuration);
 
-        const data = "intverval=" + encodeURIComponent(logInterval) + "&duration=" + encodeURIComponent(logDuration);
+        const data = "interval=" + encodeURIComponent(logInterval) + "&duration=" + encodeURIComponent(logDuration);
 
         // add code to push params to server
         fetch('/update-log-specs', {

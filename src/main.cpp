@@ -143,6 +143,7 @@ void setup() {
       if (server.hasArg("clearlogs") && server.arg("clearlogs").toInt() == 1) {
         clearLog();
         server.send(200, "text/plain", "log cleared");
+        loggerOn = false;
       } else {
         server.send(400, "text/plain", "parameter error - logs not cleared");
       }
