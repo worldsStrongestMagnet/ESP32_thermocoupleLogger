@@ -4,12 +4,13 @@
 #include <SPIFFS.h>
 #include <MAX6675.h>
 
-const char* ssid = "ESP32-thermocouple";
+const char* ssid = "AM_ESP32-thermocouple";
 const char* password = "1234567890";
 unsigned long loggingInterval = 5000;
 unsigned long loggingDuration = 10000UL * 5000UL;
 unsigned long logStartTime = 0;
 static bool loggerOn = false;
+static float currentTemp = 0;
 
 const char* csvName = "/temps.csv";
 
@@ -100,10 +101,9 @@ void setup() {
       file.close();
     });
 
-    // server.on("/latest", HTTP_GET, []() {
-    //   float currentTemp = thermocouple.readCelsius();
-    //   server.send(500, "text/plain", )
-    // });
+    server.on("/latest", HTTP_GET, []() {
+      server.send(200, "text/plain", String(thermocouple.readCelsius(), 2));
+    });
 
     server.on("/update-log-specs", HTTP_POST, []() {
       if (server.hasArg("interval") && server.hasArg("duration")) {
@@ -157,6 +157,7 @@ void loop() {
     server.handleClient();
 
     static unsigned long lastLog = 0;
+    // static unsigned long lastRead = 0;
     unsigned long currentTime = millis();
 
     if (currentTime - logStartTime < loggingDuration && loggerOn) {
@@ -166,7 +167,12 @@ void loop() {
       }
     }
 
-    if (currentTime - logStartTime > loggingDuration) {
-      loggerOn = false;
-    }
+    // for a server side approach
+    // if (currentTime - logStartTime > loggingDuration) {
+    //   loggerOn = false;
+    // }
+
+    // if (currentTime - lastRead > 500) {
+    //   currentTemp = thermocouple.readCelsius();
+    // }
 }
