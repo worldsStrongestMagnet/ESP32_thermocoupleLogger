@@ -4,7 +4,7 @@
 #include <SPIFFS.h>
 #include <MAX6675.h>
 
-const char* ssid = "AM_ESP32-thermocouple";
+const char* ssid = "AM_ESP32-thermocouple1";
 const char* password = "1234567890";
 unsigned long loggingInterval = 5000;
 unsigned long loggingDuration = 10000UL * 5000UL;
@@ -16,19 +16,26 @@ const char* csvName = "/temps.csv";
 
 WebServer server(80);
 
+// thermocoule 1
+int thermoDO1 = 19;
+int thermoCS1 = 5;
+int thermoCLK1 = 18;
 
-int thermoDO = 19;
-int thermoCS = 5;
-int thermoCLK = 18;
+MAX6675 thermocouple1(thermoCLK1, thermoCS1, thermoDO1);
 
-MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
+// thermocouple 2
+int thermoDO2 = 25; 
+int thermoCS2 = 33;
+int thermoCLK2 = 32;
+
+MAX6675 thermocouple2(thermoCLK2, thermoCS2, thermoDO2);
 
 
 void writeCsvHeader() {
     if (!SPIFFS.exists(csvName)) {
         File file = SPIFFS.open(csvName, FILE_WRITE);
         if (file) {
-            file.println("time_ms, temp_C \n");
+            file.println("time_ms, temp_C_1, temp_C_2 \n");
             file.close();
         }
     }
@@ -42,11 +49,12 @@ void logTemperatureCSV() {
         return;
     }
 
-    float temp = thermocouple.readCelsius();
+    float temp1 = thermocouple1.readCelsius();
+    float temp2 = thermocouple2.readCelsius();
 
     unsigned long timestamp = millis();
 
-    file.printf("%lu, %.2f \n", timestamp, temp);
+    file.printf("%lu, %.2f, %.2f \n", timestamp, temp1, temp2);
 
     file.close();
 
@@ -102,7 +110,7 @@ void setup() {
     });
 
     server.on("/latest", HTTP_GET, []() {
-      server.send(200, "text/plain", String(thermocouple.readCelsius(), 2));
+      server.send(200, "text/plain", String(thermocouple1.readCelsius(), 2)); // need to update to send both thermocouple readings
     });
 
     server.on("/update-log-specs", HTTP_POST, []() {
@@ -173,6 +181,6 @@ void loop() {
     // }
 
     // if (currentTime - lastRead > 500) {
-    //   currentTemp = thermocouple.readCelsius();
+    //   currentTemp = thermocouple1.readCelsius();
     // }
 }
