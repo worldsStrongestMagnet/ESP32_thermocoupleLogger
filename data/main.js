@@ -2,6 +2,7 @@
 const logIntervalObj = document.getElementById('interval');
 const logDurationObj = document.getElementById('loggingDuration');
 const currentTempDispObj = document.getElementById('currentTempDisp');
+const formSubmit = document.getElementById('Submit');
 
 async function fetchLatestTemp() {
     try {
@@ -54,3 +55,6 @@ function limitLogLen(interval, durration) {
         return durration;
     }
 }
+
+window.onload = fetchLatestTemp;
+formSubmit.onclick = setLogParams;
