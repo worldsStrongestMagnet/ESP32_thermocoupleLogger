@@ -114,9 +114,8 @@ void setup() {
   server.on("/latest", HTTP_GET, []() {
     float currentTemp1 = thermocouple1.readCelsius();
     float currentTemp2 = thermocouple2.readCelsius();
-    String json = "{\"temp1\": " + String(currentTemp1, 2) + ", \"temp2\": " + String(currentTemp2, 2) + "}"
-    server.send(200, "application/json", json)
-    // server.send(200, "text/plain", String(thermocouple1.readCelsius(), 2)); // need to update to send both thermocouple readings
+    String json = "{\"temp1\": " + String(currentTemp1, 2) + ", \"temp2\": " + String(currentTemp2, 2) + "}";
+    server.send(200, "application/json", json);
   });
 
   server.on("/update-log-specs", HTTP_POST, []() {
@@ -170,7 +169,6 @@ void loop() {
   server.handleClient();
 
   static unsigned long lastLog = 0;
-  // static unsigned long lastRead = 0;
   unsigned long currentTime = millis();
 
   if (currentTime - logStartTime < loggingDuration && loggerOn) {
