@@ -1,19 +1,21 @@
 // DOM selectors
 const logIntervalObj = document.getElementById('interval');
 const logDurationObj = document.getElementById('loggingDuration');
-const currentTempDispObj = document.getElementById('currentTempDisp');
+const currentTempDispObj1 = document.getElementById('currentTempDisp1');
+const currentTempDispObj2 = document.getElementById('currentTempDisp2');
 
 async function fetchLatestTemp() {
     try {
         // fetch latest temp from sensor
         const response = await fetch('/latest');
-        const temp = await response.text();
+        const temps = await response.json();
 
         // insert current temp into html
-        currentTempDispObj.innerText = temp + "°C";
+        currentTempDispObj1.innerText = temps.temp1 + "°C";
+        currentTempDispObj2.innerText = temps.temp2 + "°C";
 
     } catch (error) {
-        console.error('error fetching temp: ', error);
+        console.error('error fetching temps: ', error);
     }
 }
 
