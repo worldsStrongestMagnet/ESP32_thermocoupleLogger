@@ -2,7 +2,7 @@
 #include <WebServer.h>
 #include <FS.h>
 #include <SPIFFS.h>
-#include <MAX6675.h>
+#include <max6675.h>
 
 const char* ssid = "AM_ESP32-thermocouple1";
 const char* password = "1234567890";
@@ -114,8 +114,8 @@ void setup() {
   server.on("/latest", HTTP_GET, []() {
     float currentTemp1 = thermocouple1.readCelsius();
     float currentTemp2 = thermocouple2.readCelsius();
-    String json = "{\"temp1\": " + String(currentTemp1, 2) + ", \"temp2\": " + String(currentTemp2, 2) + "}";
-    server.send(200, "application/json", json);
+    String json = "{\"temp1\": " + String(currentTemp1, 2) + ", \"temp2\": " + String(currentTemp2, 2) + "}";;
+    server.send(200, "application/json", json);;
   });
 
   server.on("/update-log-specs", HTTP_POST, []() {
