@@ -108,7 +108,7 @@ async function startLogging() {
 window.onload = () => {
     fetchLatestTemp();
     setInterval(fetchLatestTemp, 5000);
-};
+}
 
 document.getElementById('submit').addEventListener('click', setLogParams);
 document.getElementById('loggingStart').addEventListener('click', startLogging);
