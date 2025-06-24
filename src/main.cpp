@@ -8,8 +8,8 @@
 // const char* ssid = "AM_ESP32-thermocouple";
 // const char* password = "1234567890";
 
-const char* ssid     = "LOCAL_SSID";
-const char* password = "LOCAL_PASS";
+const char* ssid     = "Allied Maker";
+const char* password = "blackenedbrass";
 
 unsigned long loggingInterval = 5000;
 unsigned long loggingDuration = 10000UL * 5000UL;
@@ -23,8 +23,8 @@ WebServer server(80);
 
 
 int thermoDO = 19;
-int thermoCS = 5;
-int thermoCLK = 18;
+int thermoCS = 18;//5; -- pins swapped for ease of wiring - nothing else
+int thermoCLK = 5;//18;
 
 MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
 
@@ -190,6 +190,7 @@ void loop() {
       if (currentTime - lastLog >= loggingInterval) {
         logTemperatureCSV();
         lastLog = millis();
+        // Serial.println();
       }
     }
 
