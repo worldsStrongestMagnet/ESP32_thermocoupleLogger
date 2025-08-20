@@ -23,8 +23,8 @@ WebServer server(80);
 
 
 int thermoDO = 19;
-int thermoCS = 18;//5; -- pins swapped for ease of wiring - nothing else
-int thermoCLK = 5;//18;
+int thermoCS = 18; //5;
+int thermoCLK = 5; //18;
 
 MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
 
