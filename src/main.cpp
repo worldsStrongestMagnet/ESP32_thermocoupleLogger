@@ -86,10 +86,10 @@ void setup() {
   // Serial.println(IP);
 
   // ---- connect to local WiFi ----
-  Wifi.mode(WIFI_STA);
-  Wifi.begin(ssid, password);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
   Serial.print("Connecting to wifi");
-  while (Wifi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
@@ -103,8 +103,10 @@ void setup() {
     Serial.print("Error setting up mDNS responder!");
   } else {
     Serial.println("mDNS responder started: http://esp32.local");
-    MNDS.addService("http", "tcp", 80);
+    MDNS.addService("http", "tcp", 80);
   }
+
+  
 
 
   if (!SPIFFS.begin(true)) {
