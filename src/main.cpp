@@ -3,9 +3,14 @@
 #include <FS.h>
 #include <SPIFFS.h>
 #include <max6675.h>
+#include <ESPmDNS.h>
 
-const char* ssid = "AM_ESP32-thermocouple1";
-const char* password = "1234567890";
+// const char* ssid = "AM_ESP32-thermocouple1";
+// const char* password = "1234567890";
+
+const char* ssid     = "Allied Maker";
+const char* password = "blackenedbrass";
+
 unsigned long loggingInterval = 5000;
 unsigned long loggingDuration = 10000UL * 5000UL;
 unsigned long logStartTime = 0;
@@ -74,11 +79,33 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  // create access point
-  WiFi.softAP(ssid, password);
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("Access point initiated. Visit http://");
-  Serial.println(IP);
+  // // create access point
+  // WiFi.softAP(ssid, password);
+  // IPAddress IP = WiFi.softAPIP();
+  // Serial.print("Access point initiated. Visit http://");
+  // Serial.println(IP);
+
+  // ---- connect to local WiFi ----
+  Wifi.mode(WIFI_STA);
+  Wifi.begin(ssid, password);
+  Serial.print("Connecting to wifi");
+  while (Wifi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("Connected! IP address: ");
+  Serial.println(WiFi.localIP());
+
+
+  // ----START mDNS RESPONDER ----
+  if (!MDNS.begin("esp32")) {
+    Serial.print("Error setting up mDNS responder!");
+  } else {
+    Serial.println("mDNS responder started: http://esp32.local");
+    MNDS.addService("http", "tcp", 80);
+  }
+
 
   if (!SPIFFS.begin(true)) {
       Serial.println("SPIFFS mount failed");
