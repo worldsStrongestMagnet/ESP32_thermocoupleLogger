@@ -141,10 +141,17 @@ void setup() {
   });
 
   server.on("/latest", HTTP_GET, []() {
-    float currentTemp1 = thermocouple1.readCelsius();
-    float currentTemp2 = thermocouple2.readCelsius();
-    String json = "{\"temp1\": " + String(currentTemp1, 2) + ", \"temp2\": " + String(currentTemp2, 2) + "}";;
-    server.send(200, "application/json", json);;
+    // float currentTemp1 = thermocouple1.readCelsius();
+    // float currentTemp2 = thermocouple2.readCelsius();
+    String json = "{\"temp1\": " + String(thermocouple1.readCelsius(), 2) + ", \"temp2\": " + String(thermocouple2.readCelsius(), 2) + "}";
+    
+    // debugging current read    
+    Serial.print("thermocouple 1: ");
+    Serial.println(String(thermocouple1.readCelsius(), 2));
+    Serial.print("thermocouple 2: ");
+    Serial.println(String(thermocouple2.readCelsius(), 2));
+
+    server.send(200, "application/json", json);
   });
 
   server.on("/update-log-specs", HTTP_POST, []() {
