@@ -3,9 +3,14 @@
 #include <FS.h>
 #include <SPIFFS.h>
 #include <MAX6675.h>
+#include <ESPmDNS.h>
 
-const char* ssid = "AM_ESP32-thermocouple";
-const char* password = "1234567890";
+// const char* ssid = "AM_ESP32-thermocouple";
+// const char* password = "1234567890";
+
+const char* ssid     = "Allied Maker";
+const char* password = "blackenedbrass";
+
 unsigned long loggingInterval = 5000;
 unsigned long loggingDuration = 10000UL * 5000UL;
 unsigned long logStartTime = 0;
@@ -18,8 +23,8 @@ WebServer server(80);
 
 
 int thermoDO = 19;
-int thermoCS = 5;
-int thermoCLK = 18;
+int thermoCS = 18; //5;
+int thermoCLK = 5; //18;
 
 MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
 
@@ -63,11 +68,32 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
 
-    // create access point
-    WiFi.softAP(ssid, password);
-    IPAddress IP = WiFi.softAPIP();
-    Serial.print("Access point initiated. Visit http://");
-    Serial.println(IP);
+    // // create access point
+    // WiFi.softAP(ssid, password);
+    // IPAddress IP = WiFi.softAPIP();
+    // Serial.print("Access point initiated. Visit http://");
+    // Serial.println(IP);
+
+  // ——— CONNECT TO LOCAL WIFI ———
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("Connected! IP address: ");
+  Serial.println(WiFi.localIP());
+  // ————————————————————————
+
+  // ——— START mDNS RESPONDER ———
+  if (!MDNS.begin("esp32")) {
+    Serial.println("Error setting up mDNS responder!");
+  } else {
+    Serial.println("mDNS responder started: http://esp32.local");
+    MDNS.addService("http", "tcp", 80);
+  }
 
     
     if (!SPIFFS.begin(true)) {
@@ -164,6 +190,7 @@ void loop() {
       if (currentTime - lastLog >= loggingInterval) {
         logTemperatureCSV();
         lastLog = millis();
+        // Serial.println();
       }
     }
 
