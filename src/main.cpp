@@ -21,19 +21,58 @@ const char* csvName = "/temps.csv";
 
 WebServer server(80);
 
-
+// -- thermocouple 1 -- //
 int thermoDO = 19;
 int thermoCS = 18; //5;
 int thermoCLK = 5; //18;
 
-MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
+MAX6675 thermocouple1(thermoCLK, thermoCS, thermoDO);
 
+// -- thermocouple 2 -- //
+int thermoDO2 = 17;
+int thermoCS2 = 16;
+int thermoCLK2 = 4;
+
+MAX6675 thermocouple2(thermoCLK2, thermoCS2, thermoDO2);
+
+// struct to hold both thermocouple readings
+struct Temps {
+  float t1;
+  float t2;
+};
+
+// function to read both sensors without interfering with one another
+Temps serializedSensorRead() {
+  Temps out{NAN, NAN};
+
+  // read thermocouple 1 //
+  digitalWrite(thermoCS2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(thermoCS, LOW);
+  delayMicroseconds(5);
+  out.t1 = thermocouple1.readCelsius();
+  digitalWrite(thermoCS, HIGH);
+
+  delay(5);
+
+  // read thermocouple 2 //
+  digitalWrite(thermoCS, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(thermoCS2, LOW);
+  delayMicroseconds(5);
+  out.t2 = thermocouple2.readCelsius();
+  digitalWrite(thermoCS2, HIGH); 
+
+  delay(5);
+
+  return out;
+}
 
 void writeCsvHeader() {
     if (!SPIFFS.exists(csvName)) {
         File file = SPIFFS.open(csvName, FILE_WRITE);
         if (file) {
-            file.println("time_ms, temp_C \n");
+            file.println("time_ms, temp1_C, temp2_C \n");
             file.close();
         }
     }
@@ -47,11 +86,12 @@ void logTemperatureCSV() {
         return;
     }
 
-    float temp = thermocouple.readCelsius();
+    // float temp = thermocouple1.readCelsius();
+    Temps temp = serializedSensorRead();
 
     unsigned long timestamp = millis();
 
-    file.printf("%lu, %.2f \n", timestamp, temp);
+    file.printf("%lu, %.2f, %.2f \n", timestamp, temp.t1, temp.t2);
 
     file.close();
 
@@ -128,7 +168,12 @@ void setup() {
     });
 
     server.on("/latest", HTTP_GET, []() {
-      server.send(200, "text/plain", String(thermocouple.readCelsius(), 2));
+      Temps tt = serializedSensorRead();
+      String json = "{\"temp1\": " + String(tt.t1, 2) + ", \"temp2\": " + String(tt.t2, 2) + "}"; 
+      // String json = "{\"temp1\": " + String(thermocouple1.readCelsius(), 2) + "}";
+      server.send(200, "application/json", json);
+
+      // server.send(200, "text/plain", String(thermocouple1.readCelsius(), 2));
     });
 
     server.on("/update-log-specs", HTTP_POST, []() {
